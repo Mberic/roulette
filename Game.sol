@@ -3,74 +3,97 @@
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import "./VRFv2Consumer.sol";
+import "../contracts/RandomNumberGenerator.sol";
+import "../contracts/PriceConsumerV3.sol";
+import "../contracts/Play.sol";
 
 contract Game{
 
-     /**
-     * Network: Goerli    Aggregator: ETH/USD, Address: 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e
-     */
-    AggregatorV3Interface internal priceFeed;
     address payable GameContractAddress;
-    Play GameInstance;
+    PriceConsumerV3 PriceFeeds;
+    Play[] instanceArray;
+    
     uint8 players;
-   
+    int256 public EthFee;
+    uint256 refreshTime;
+    
+    string internal info_failure = "Insufficient fee";
+    string internal info_success = "Welcome to the game";
+
     constructor() {
-        priceFeed = AggregatorV3Interface( 0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e );
         GameContractAddress = payable(address(this));
+        PriceFeeds = new PriceConsumerV3();
         players = 0;
+        setSubscriptionFee();
     }
 
-    /**
-     * Returns the latest price.
-     */
-    function getLatestPrice() public view returns (int) {
-        // prettier-ignore
-        ( , int price, , , ) = priceFeed.latestRoundData();
-        return price;
+    event firstPlayer(address p1);
+    event bothPlayers(address p1, address p2);
+
+    
+    function setSubscriptionFee() public {
+
+        int256 ethPrice = PriceFeeds.getLatestEthPrice();
+        int256 amount = ((6*(10**26)) / ethPrice);
+
+        updateEthFee(amount);
+    }
+
+    function setEthFee(int256 fee) public{
+        EthFee = fee;
+    }
+
+    function updateEthFee(int256 fee) public{
+        
+        if (block.timestamp >= refreshTime)
+        {
+            setEthFee(fee);
+            refreshTime = block.timestamp + 300 seconds;
+        }
+    }
+
+    function checkFee(int256 fee) internal view returns (bool) {
+
+        if (fee == EthFee){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    function subscribeToGame(int256 fee) public returns (string memory ) {
+        
+        if (checkFee(fee) == true) 
+        { 
+            startGame();
+            return info_success;
+        } 
+        else 
+        { 
+            return info_failure; 
+        }
     }
 
     function startGame() public {
 
-        if(players == 0){
-            GameInstance = new Play();
-            GameInstance.setPlayer1(tx.origin);
+        if(players == uint8(0))
+        {
+            Play PlayInstance = new Play();
+            PlayInstance.setPlayer1(msg.sender);
+
             players++;
-        } else if (players == 1){
-            GameInstance.setPlayer2(tx.origin);
-            players++;
-        } else if (players == 2) {
-            players -= 2;
-            startGame();
-        }
-    }
+            instanceArray.push(PlayInstance);
+            emit firstPlayer(PlayInstance.player1());
+        } 
+        else if (players == uint8(1))
+        {
+            uint256 arrayLength = instanceArray.length;
+            instanceArray[ arrayLength -1 ].setPlayer2(msg.sender) ;
+            emit bothPlayers(instanceArray[ arrayLength -1 ].player1(), instanceArray[ arrayLength -1 ].player2());
 
-    // function playGame(address p1, address p2){
-
-    // }
-
-    function randomValue() 
-    public 
-    returns(uint)
-    {
-        VRFv2Consumer randContract = new VRFv2Consumer(9139);
-        uint256 randomWord  = randContract.requestRandomWords();
-        return randomWord;
-    }
+            players -= 1;
+        } 
+    }  
 }
 
-
-contract Play{
-    
-    address public player1;
-    address public player2;
-
-    function setPlayer1(address addr) public{
-        player1 = addr;
-    }
-
-    function setPlayer2(address addr) public{
-        player2 = addr;
-    }
-
-}
