@@ -61,12 +61,15 @@ You could also decide to compile and deploy the contract on your own. There are 
 ## FAQS
 
 1. Apart from ETH, will there be any other acceptable tokens for subscribing to the game? 
-Yes. The project intends to implement the Axelar Interface and allow for cross chain transfers in the future. 
+   
+   Yes. The project intends to implement the Axelar Interface and allow for cross chain transfers in the future. The following tokens will be supported : BNB, AXL, and more (yet to be decided).
 
-The following tokens will be supported : BNB, AXL, and more (yet to be decided).
 
 2. Does the project intend to accept higher denominations in the future?
-Yes. Later on, the project will have a provision for a higher subscriptions of $60 and $600.
+   
+   Yes. Later on, the project will have a provision for a higher subscriptions of $60 and $600.
+
 
 3. Why are there 6 rounds and why is this number used a lot?
-This game is based on Russion roulette. In this game, the gun primarily used is a revolver (which has a compartment for 6 bullets). 
+   
+   This game is based on Russion roulette. In this game, the gun primarily used is a revolver (which has a compartment for 6 bullets). 
