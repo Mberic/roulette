@@ -38,7 +38,7 @@ The files in this repo already contained a preconfigured contract address on the
 To get started, you only need to configure the following constants in the above file.
 
 - API_KEY = This is the API key given to you by your Web3 provider. 
-- PRIVATE_KEY = This is the private key of your Ethereum wallet. If you are using Metamask, you can check out this documentation on how to get your  private key. 
+- PRIVATE_KEY = This is the private key of your Ethereum wallet. If you are using Metamask, you can check out [this documentation](https://metamask.zendesk.com/hc/en-us/articles/360015289632-How-to-Export-an-Account-Private-Key) on how to get your  private key. 
 - NETWORK = The test network where the contract was deployed. ( This is already configured to “goerli” ) 
 
 After this, you can now run the **interact.js** file to play the game:
@@ -55,8 +55,8 @@ For testing purposes, you can play against yourself (the game allows this). Addi
 
 You could also decide to compile and deploy the contract on your own. There are a few things you’ll need to note in order to do this:
 
-1. Chainlink’s Verifiable Random Function (VRF) requires you to pay for the random numbers generated using the LINK token. You can get some testnet LINK from here.
-2. There are 2 possible ways in which you can pay for these random numbers: either using a direct pay or through a subscription. The contract implemented here uses the subscription method.  You can read more about how to configure this from here.
+1. Chainlink’s Verifiable Random Function (VRF) requires you to pay for the random numbers generated using the LINK token. You can get some [testnet LINK from here](https://faucets.chain.link/).
+2. There are 2 possible ways in which you can pay for these random numbers: either using a direct pay or through a subscription. The contract implemented here uses the subscription method.  You can read more about how to configure this from [here](https://docs.chain.link/vrf/v2/subscription).
 
 ## FAQS
 
