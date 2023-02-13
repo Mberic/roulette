@@ -16,7 +16,7 @@ If after 6 rounds there's no winner, the contract generates 3 random numbers and
 
 - Node JS (Recommended: >= v16.0 )
 - Ethers JS (Recommended: >= v5.7 )
-- Hardhat. (**OPTIONAL**) This is a development environment that will enable you to compile and deploy your smart contracts
+- Hardhat. This is a development environment that will enable you to compile and deploy your smart contracts
 
 2. Blockchain Account
 
