@@ -27,7 +27,9 @@ If after 6 rounds there's no winner, the contract generates 3 random numbers and
 
 Simply clone this github repo to get started:
 
-$ git clone https://github.com/Mberic/roulette.git
+```sh
+git clone https://github.com/Mberic/roulette.git
+```
 
 ## How to Play
 
@@ -43,7 +45,9 @@ To get started, you only need to configure the following constants in the above 
 
 After this, you can now run the **interact.js** file to play the game:
 
-$ node interact.js
+```sh
+node interact.js
+```
 
 **NB:** 
 
