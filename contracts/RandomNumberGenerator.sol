@@ -11,10 +11,8 @@ contract RandomNumberGenerator is VRFConsumerBaseV2 {
     bytes32 s_keyHash = 0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
     uint32 callbackGasLimit = 600000;
     uint16 requestConfirmations = 3;
-    uint32 numWords =  1;
-
-    uint256 randomNum;
-  
+    
+    uint256[] randomNumbers;
     VRFCoordinatorV2Interface COORDINATOR;
     
     constructor () VRFConsumerBaseV2(vrfCoordinator) {
@@ -22,10 +20,9 @@ contract RandomNumberGenerator is VRFConsumerBaseV2 {
     }
     
     event numberRequested(uint256 indexed requestId);
-    event valueFound(uint256 indexed requestId, uint256 indexed result);
+    event valueFound(uint256 indexed requestId);
 
-
-    function requestNumber() public returns(uint256 requestId){
+    function requestNumber(uint32 numWords) public returns(uint256 requestId){
         
         requestId = COORDINATOR.requestRandomWords(
             s_keyHash,
@@ -40,7 +37,6 @@ contract RandomNumberGenerator is VRFConsumerBaseV2 {
 
 
     function getRequestConfigurationValues() public view returns(uint16, uint32, bytes32[] memory){
-
         return COORDINATOR.getRequestConfig();
     }
 
@@ -49,39 +45,18 @@ contract RandomNumberGenerator is VRFConsumerBaseV2 {
     (uint256 requestId, uint256[] memory randomWords) 
     internal override{
         
-        randomNum = randomWords[0];
-        emit valueFound(requestId, randomNum);
+        for (uint256 i = 0; i < randomWords.length; i++){
+            randomNumbers.push( randomWords[i] );
+        }
+        
+        emit valueFound(requestId);
     }
 
-
-    function getRandomNumber()
+    function getRandomNumbers()
     public
     view
-    returns (uint256){
-        return randomNum;
+    returns (uint256[] memory){
+        return randomNumbers;
     }
-
 }
 
- /**
-    function getRequestConfig()
-        external
-        view
-        returns (
-        uint16,
-        uint32,
-        bytes32[] memory
-        );
-
-    */
-
-    /**
-        function requestRandomWords(
-            bytes32 keyHash,
-            uint64 subId,
-            uint16 minimumRequestConfirmations,
-            uint32 callbackGasLimit,
-            uint32 numWords
-        ) external returns (uint256 requestId);
-    */
-    
