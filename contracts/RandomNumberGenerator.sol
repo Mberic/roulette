@@ -20,7 +20,7 @@ contract RandomNumberGenerator is VRFConsumerBaseV2 {
     }
     
     event numberRequested(uint256 indexed requestId);
-    event valueFound(uint256 indexed requestId);
+    event valueFound(uint256 indexed requestId, uint256 indexed arraylength);
 
     function requestNumber(uint32 numWords) public returns(uint256 requestId){
         
@@ -44,12 +44,20 @@ contract RandomNumberGenerator is VRFConsumerBaseV2 {
     function fulfillRandomWords
     (uint256 requestId, uint256[] memory randomWords) 
     internal override{
-        
-        for (uint256 i = 0; i < randomWords.length; i++){
+
+        if(randomNumbers.length == 0){
+            for (uint256 i = 0; i < randomWords.length; i++){
             randomNumbers.push( randomWords[i] );
         }
-        
-        emit valueFound(requestId);
+        } else {
+            while (randomNumbers.length > 0) { randomNumbers.pop(); }
+
+            for (uint256 i = 0; i < randomWords.length; i++){
+            randomNumbers.push( randomWords[i] );
+        }
+        }
+                
+        emit valueFound(requestId ,randomNumbers.length);
     }
 
     function getRandomNumbers()

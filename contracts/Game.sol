@@ -15,8 +15,8 @@ contract Game{
     
     uint8 players;
     uint256[] indexList;
-    int256 public EthFee;
-    uint256 refreshTime;
+    int256 public gameFee;
+    uint256 private refreshTime;
 
     struct PlayValues{
         address addrVal; 
@@ -29,11 +29,11 @@ contract Game{
         GameContractAddress = payable(address(this));
         PriceFeeds = new PriceConsumerV3();
         players = 0;
-        setSubscriptionFee();
     }
 
     event firstPlayer(address p1);
     event bothPlayers(address p1, address p2, uint256 playID);
+    event playerRegistered (uint8 player);
 
     modifier onlyContract {
         require(msg.sender == GameContractAddress);
@@ -42,38 +42,41 @@ contract Game{
 
     receive() external payable {}
 
-    function setSubscriptionFee() public {
+    function updateFee() private onlyContract {
 
         int256 ethPrice = PriceFeeds.getLatestEthPrice();
         int256 amount = ((6*(10**26)) / ethPrice);
 
-        updateEthFee(amount);
-    }     
-
-    function updateEthFee(int256 fee) public{
-        
         if (block.timestamp >= refreshTime)
         {
-            EthFee = fee;
-            refreshTime = block.timestamp + 300 seconds;
+            gameFee = amount;
+            refreshTime = block.timestamp + 200 seconds;
         }
-    }
+    }   
 
+    function getUpdatedFee() public returns (int256) {
+        updateFee();
+        return gameFee;
+    }
     
-    function proveSubscription() public returns (bool) {
-        
+    function subscribeToGame() external payable returns (bool success) {
+
+        require( msg.value == uint(getUpdatedFee()), "Insufficient fee" ); 
+        setPlayers();
+        return true;       
     }
 
-    function startGame() public {
+    function setPlayers() private onlyContract {
 
         if(players == uint8(0))
         {
             Play PlayInstance = new Play();
-            PlayInstance.setPlayer1(msg.sender);
+            PlayInstance.setPlayer1(tx.origin);
 
             players++;
             instanceArray.push(PlayInstance);
             emit firstPlayer(PlayInstance.player1());
+            emit playerRegistered(1);
         } 
         else if (players == uint8(1))
         {
@@ -81,32 +84,32 @@ contract Game{
             uint256 instanceID = arrayLength - 1;
             indexList.push(instanceID);
             
-            instanceArray[ instanceID ].setPlayer2(msg.sender) ;
+            instanceArray[ instanceID ].setPlayer2(tx.origin) ;
             emit bothPlayers(instanceArray[ instanceID ].player1(), instanceArray[ instanceID ].player2(), instanceID);
-
+            emit playerRegistered(2);
             players -= 1;
         } 
     }  
 
     function getID(address addr) public view returns (uint256) {
 
-        uint256 playerID;
+        uint256 playID;
 
         for (uint256 i=0; i < instanceArray.length; i++){
             if (instanceArray[i].player1() == addr || instanceArray[i].player2() == addr){
-                playerID = i;
+                playID = i+1;
                 break;
             }
         }
 
-        return playerID;
+        return playID;
     }
 
     function checkID(uint256 playID, address addr) public view returns (bool) {
 
-        if ( playID < instanceArray.length )
+        if ( playID > 0 && playID <= instanceArray.length )
         {
-            Play PlayInstance = instanceArray[playID];
+            Play PlayInstance = instanceArray[playID-1];
             if (PlayInstance.player1() == addr || PlayInstance.player2() == addr){
                 return true;
             } else {
@@ -125,7 +128,7 @@ contract Game{
 
         if (result == true) {
 
-            Play PlayInstance = instanceArray[playID];
+            Play PlayInstance = instanceArray[playID-1];
             uint64 status;
 
             if ( player == PlayInstance.player1() && PlayInstance.turn() == 1) 
@@ -176,26 +179,27 @@ contract Game{
 
     function checkWinner(address addr, uint256 playID) public returns (uint64) {
 
-        Play PlayInstance = instanceArray[playID];
+        Play PlayInstance = instanceArray[playID-1];
         int256 ethPrice = PriceFeeds.getLatestEthPrice();
         int256 prize = ( (12*(10**26) * 94) / (ethPrice * 100) );
 
         if (PlayInstance.player1() == addr){
             endGame(addr, prize);
-            delete instanceArray[playID];
+            delete instanceArray[playID-1];
             return 1;
         } else if (PlayInstance.player2() == addr){
             endGame(addr, prize);
-            delete instanceArray[playID];
+            delete instanceArray[playID-1];
             return 2;
         } else {
             return 0;
         }
     }
 
-    function endGame(address addr, int256 prize) public { 
+    function endGame(address addr, int256 prize) private onlyContract { 
         // send  message, delete playerID
         address payable winnerAddr = payable(addr);
         winnerAddr.transfer(uint(prize));
     } 
 }
+

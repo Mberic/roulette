@@ -10,8 +10,8 @@ contract Play {
     
     address public player1;
     address public player2;
-   
-    address RNG_contract_address = 0x7eE6Be5Cf15b74c205246964DfDA8DE32F8110cB;
+                                    
+    address RNG_contract_address = 0x6fF383cFF657191e3bd7B9d45Fd2605A0126891B;
     PriceConsumerV3 PriceData = new PriceConsumerV3();
     RNG_Interface RNG_Instance = RNG_Interface(RNG_contract_address);
           
@@ -147,4 +147,3 @@ contract Play {
         }
     }
 }
-
