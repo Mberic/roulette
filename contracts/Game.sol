@@ -3,13 +3,15 @@
 pragma solidity ^0.8.7;
 
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "../interfaces/IAxelarExecutable.sol";
 import "../contracts/PriceConsumerV3.sol";
 import "../contracts/Play.sol";
 
-contract Game{
+contract Game is IAxelarExecutable {
 
     address payable GameContractAddress;
-
+    address gatewayAddr = 0xe432150cce91c13a887f7D836923d5597adD8E31;
+    
     PriceConsumerV3 PriceFeeds;
     Play[] instanceArray;
     
@@ -25,7 +27,9 @@ contract Game{
 
     PlayValues[] public PlayValuesArray;
     
-    constructor() {
+    constructor() IAxelarExecutable(gatewayAddr) {
+
+        gateway = IAxelarGateway(gatewayAddr);
         GameContractAddress = payable(address(this));
         PriceFeeds = new PriceConsumerV3();
         players = 0;
@@ -34,6 +38,8 @@ contract Game{
     event firstPlayer(address p1);
     event bothPlayers(address p1, address p2, uint256 playID);
     event playerRegistered (uint8 player);
+
+    event crosschainSubscriber(string sourceChain, string sourceAddress, address payload, string tokenSymbol, uint256 amount);
 
     modifier onlyContract {
         require(msg.sender == GameContractAddress);
@@ -62,16 +68,31 @@ contract Game{
     function subscribeToGame() external payable returns (bool success) {
 
         require( msg.value == uint(getUpdatedFee()), "Insufficient fee" ); 
-        setPlayers();
+        setPlayers(msg.sender);
         return true;       
     }
 
-    function setPlayers() private onlyContract {
+    function _executeWithToken(
+        string memory sourceChain,
+        string memory sourceAddress,
+        bytes calldata payload,
+        string memory tokenSymbol,
+        uint256 amount
+    ) internal override {
+
+        address subscriber = abi.decode(payload, (address));
+        setPlayers(subscriber);
+
+        emit crosschainSubscriber(sourceChain, sourceAddress, subscriber, tokenSymbol, amount);
+    }
+
+
+    function setPlayers(address player) private onlyContract {
 
         if(players == uint8(0))
         {
             Play PlayInstance = new Play();
-            PlayInstance.setPlayer1(tx.origin);
+            PlayInstance.setPlayer1(player);
 
             players++;
             instanceArray.push(PlayInstance);
@@ -84,7 +105,7 @@ contract Game{
             uint256 instanceID = arrayLength - 1;
             indexList.push(instanceID);
             
-            instanceArray[ instanceID ].setPlayer2(tx.origin) ;
+            instanceArray[ instanceID ].setPlayer2(player) ;
             emit bothPlayers(instanceArray[ instanceID ].player1(), instanceArray[ instanceID ].player2(), instanceID);
             emit playerRegistered(2);
             players -= 1;
