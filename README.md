@@ -1,8 +1,8 @@
-# Roulette
+# Roulette: A Cross-chain Game
 
 ## About
 
-This is a two-player zero-sum game. It's based on Russian Roulette. The goal of each player is to guess if a random number is even or odd. The game uses Chainlink's Verifiable Random Function (VRF) as its random number generator (RNG).
+This is a two-player zero-sum game built on the Axelar network. It's based on Russian Roulette. The goal of each player is to guess if a random number is even or odd. The game uses Chainlink's Verifiable Random Function (VRF) as its random number generator (RNG).
 
 Each player sends $6 worth of ETH to the contract address (address payable). Winner takes it all. However, the game-creator retains a 6% charge.
 
