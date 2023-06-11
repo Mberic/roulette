@@ -2,11 +2,13 @@
 
 ## About
 
-This is a two-player zero-sum game built on the Axelar network. It's based on Russian Roulette. The goal of each player is to guess if a random number is even or odd. The game uses Chainlink's Verifiable Random Function (VRF) as its random number generator (RNG).
+This is a two-player zero-sum game built using Chainlink's Verifiable Random Function (VRF) as its random number generator (RNG). The game uses the Axelar network to give it cross-chain functionality. Players on both the Ethereum network and Binance can access it.
 
-Each player sends $6 worth of ETH to the contract address (address payable). Winner takes it all. However, the game-creator retains a 6% charge.
+The goal of each player is to guess if the bullet chamber is loaded or not. Each player sends $6 worth of ETH to the contract address (address payable). The winner takes it all. However, the game creator retains a 10% charge.
 
-If after 6 rounds there's no winner, the contract generates 3 random numbers and then randomly chooses one of the two players to make the first guess on whether the majority of the 3 numbers is even or odd. Whatever the first player chooses (odd or even) , the opposite is automatically assigned to the other player. The contract then chooses the winner and assigns them the prize.
+If after 6 rounds there's no winner, the contract generates 3 random numbers and then randomly chooses one of the two players to make the first guess on whether the majority of the 3 numbers is even or odd.
+
+Whatever the first player chooses (odd or even), the opposite is automatically assigned to the other player. The contract then chooses the winner and assigns them the prize.
 
 ## Installing
 
